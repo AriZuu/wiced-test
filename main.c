@@ -54,6 +54,9 @@ extern const UosRomFile romFiles[];
 void ifStatusCallback(struct netif *netif);
 void tcpServerThread(void*);
 
+/*
+ * This is called by lwip when interface status changes.
+ */
 void ifStatusCallback(struct netif *netif)
 { 
   if (netif_is_up(netif)) { 
@@ -67,33 +70,45 @@ void ifStatusCallback(struct netif *netif)
 }
 
 struct netif defaultIf;
-static void addEthernetIF()
+
+static void addEthernetIf()
 {
   ip_addr_t ipaddr, netmask, gw;
 
 #if LWIP_DHCP != 0
 
-        ip_addr_set_zero( &gw );
-        ip_addr_set_zero( &ipaddr );
-        ip_addr_set_zero( &netmask );
+  ip_addr_set_zero( &gw );
+  ip_addr_set_zero( &ipaddr );
+  ip_addr_set_zero( &netmask );
 
 #else
+
   IP4_ADDR(&gw, 192,168,61,1);
   IP4_ADDR(&ipaddr, 192,168,61,55);
   IP4_ADDR(&netmask, 255,255,255,0);
+
 #endif
 
-  netif_set_default(netif_add(&defaultIf, &ipaddr, &netmask, &gw, WWD_STA_INTERFACE, ethernetif_init,
-            tcpip_input));
+  netif_set_default(netif_add(&defaultIf,
+                              &ipaddr,
+                              &netmask,
+                              &gw,
+                              WWD_STA_INTERFACE,
+                              ethernetif_init,
+                              tcpip_input));
 
 
 #if LWIP_DHCP != 0
+
   netif_set_up(&defaultIf);
   netif_set_status_callback(&defaultIf, ifStatusCallback);
   dhcp_start(&defaultIf);
+
 #else
+
   netif_set_status_callback(&defaultIf, ifStatusCallback);
   netif_set_up(&defaultIf);
+
 #endif
 
 #if LWIP_IPV6
@@ -103,9 +118,12 @@ static void addEthernetIF()
   printf("Ethernet IF added.\n");
 }
 
-static wiced_mac_t   my_mac             = { {   0,   0,   0,   0,   0,   0} };
+static wiced_mac_t   myMac             = { {  0, 0, 0, 0, 0, 0 } };
 
-static void tcpip_init_done(void *arg)
+/*
+ * This is called by lwip when basic initialization has been completed.
+ */
+static void tcpipInitDone(void *arg)
 {
   wiced_ssid_t ssid;
   char pass[40];
@@ -116,20 +134,26 @@ static void tcpip_init_done(void *arg)
   uosResourceDiag();
   printf("LwIP started.\n");
 
+/*
+ * Bring WIFI up.
+ */
   while ((result = wwd_management_init(WICED_COUNTRY_FINLAND, NULL)) != WWD_SUCCESS) {
 
     printf("WWD init error %d\n", result);
     posTaskSleep(MS(30000));
   }
 
-  wwd_wifi_get_mac_address(&my_mac, WWD_STA_INTERFACE);
+  wwd_wifi_get_mac_address(&myMac, WWD_STA_INTERFACE);
 
-  printf("Mac addr is %02x:%02x:%02x:%02x:%02x:%02x", my_mac.octet[0],
-                my_mac.octet[1], my_mac.octet[2], my_mac.octet[3],
-                my_mac.octet[4], my_mac.octet[5]);
+  printf("Mac addr is %02x:%02x:%02x:%02x:%02x:%02x", myMac.octet[0],
+                myMac.octet[1], myMac.octet[2], myMac.octet[3],
+                myMac.octet[4], myMac.octet[5]);
 
 
   uosResourceDiag();
+/*
+ * As AP network name and password and attempt to join.
+ */
   printf("Joining AP\n");
   do {
 
@@ -145,9 +169,11 @@ static void tcpip_init_done(void *arg)
 
   printf("Join OK.\n");
   uosResourceDiag();
-  addEthernetIF();
+  addEthernetIf();
   printf("Init DONE!!\n");
-
+/* 
+ * Signal main thread that we are done.
+ */
   sys_sem_signal(sem);
 }
 
@@ -157,20 +183,32 @@ static void mainTask(void* arg)
 
   uosInit();
   uosBootDiag();
+/* 
+ * Provide a filesystem which contains Wifi firmware to Wiced driver.
+ */
   uosMountRom("/firmware", romFiles);
 
-
   nosPrintf("\n");
+
   if(sys_sem_new(&sem, 0) != ERR_OK) {
     LWIP_ASSERT("Failed to create semaphore", 0);
   }
 
-  tcpip_init(tcpip_init_done, &sem);
+/*
+ * Bring LwIP & Wifi up.
+ */
+  tcpip_init(tcpipInitDone, &sem);
   sys_sem_wait(&sem);
   nosPrintf("TCP/IP initialized.\n");
+
+/*
+ * Start simple hello word server.
+ */
   nosTaskCreate(tcpServerThread, NULL, 6, 1400, "accept");
 
-
+/*
+ * Display task resource usage each minute.
+ */
   while (1) {
 
    posTaskSleep(MS(60000));
