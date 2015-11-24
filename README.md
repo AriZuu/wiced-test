@@ -4,3 +4,14 @@ LwIP (from picoos-lwip library) and WICED WWD driver
 
 Board has STM32F205RGT6 MCU and broadcom BCM43362A2 Wifi chip.
 
+To build this following libraries are needed:
+
+* Pico]OS 
+* picoos-micro
+* picoos-lwip
+* wiced-driver
+* cmsis-ports
+
+Get them from http://github.com/AriZuu and extract into same parent directory as this project.
+Some of libraries above need source code that needs to be downloaded manually from
+vendor web sites (follow instructions in the libraries).
