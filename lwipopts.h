@@ -44,44 +44,42 @@
  * perfectly on 32-bit boundary (stm32 dma requires 32-bit aligment). 
  */
 
-#define ETH_PAD_SIZE    2
-#define PBUF_LINK_ENCAPSULATION_HLEN       (WICED_LINK_OVERHEAD_BELOW_ETHERNET_FRAME_MAX-ETH_PAD_SIZE)
+#define ETH_PAD_SIZE                    2
+#define PBUF_LINK_ENCAPSULATION_HLEN    (WICED_LINK_OVERHEAD_BELOW_ETHERNET_FRAME_MAX-ETH_PAD_SIZE)
 
 #define LWIP_NETIF_TX_SINGLE_PBUF      (1)
 
-#define TCPIP_THREAD_PRIO 7
+#define TCPIP_THREAD_PRIO               7
 #define TCPIP_THREAD_STACKSIZE          3000
-#define LWIP_IPV6 0
+#define LWIP_IPV6                       0
 
 #define IP_REASSEMBLY                   0
 #define LWIP_RAW                        0
-#define ARP_QUEUEING 1
+#define ARP_QUEUEING                    1
 
-#define LWIP_DEBUG 1
-#define MEM_ALIGNMENT           4
-#define LWIP_STATS	1
-#define LWIP_STATS_DISPLAY	0
+#define LWIP_DEBUG                      1
+#define MEM_ALIGNMENT                   4
+#define LWIP_STATS	                    1
+#define LWIP_STATS_DISPLAY	            0
 
-#define LWIP_DHCP 0
-#define LWIP_NETIF_STATUS_CALLBACK 1
+#define LWIP_DHCP                       0
+#define LWIP_NETIF_STATUS_CALLBACK      1
+
+#define PBUF_POOL_SIZE                  16
+#define MEMP_NUM_PBUF                   16 
+#define MEMP_NUM_UDP_PCB                4
+#define MEMP_NUM_TCP_PCB                5
+#define MEMP_NUM_TCP_PCB_LISTEN         2
+#define TCP_SND_QUEUELEN                6
+#define MEMP_NUM_TCP_SEG                16
 
 //#define TCPIP_DEBUG      LWIP_DBG_ON
 //#define NETIF_DEBUG      LWIP_DBG_ON
 //#define SOCKETS_DEBUG    LWIP_DBG_OFF
 //#define IP_DEBUG         LWIP_DBG_ON
-#define ICMP_DEBUG       LWIP_DBG_ON
-#define LWIP_DBG_TYPES_ON 0xff
-#define DHCP_DEBUG LWIP_DBG_ON
-#define ETHARP_DEBUG LWIP_DBG_ON
-
-
-#define PBUF_POOL_SIZE          16
-#define MEMP_NUM_PBUF                   16 
-#define MEMP_NUM_UDP_PCB                4
-#define MEMP_NUM_TCP_PCB                5
-#define MEMP_NUM_TCP_PCB_LISTEN         2
-#define TCP_SND_QUEUELEN 		6
-#define MEMP_NUM_TCP_SEG                16
-#define LWIP_RAND() 1942
+//#define ICMP_DEBUG       LWIP_DBG_ON
+//#define DHCP_DEBUG LWIP_DBG_ON
+//#define ETHARP_DEBUG LWIP_DBG_ON
+//#define LWIP_DBG_TYPES_ON 0xff
 
 #endif
