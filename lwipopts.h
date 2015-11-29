@@ -52,10 +52,13 @@
 #define TCPIP_THREAD_PRIO               7
 #define TCPIP_THREAD_STACKSIZE          3000
 #define LWIP_IPV6                       0
+#define LWIP_RAW                        1 // for ping
+#define LWIP_SO_RCVTIMEO                1
+#define LWIP_NETIF_API                  1
 
 #define IP_REASSEMBLY                   0
-#define LWIP_RAW                        0
 #define ARP_QUEUEING                    1
+#define LWIP_DNS			1
 
 #define LWIP_DEBUG                      1
 #define MEM_ALIGNMENT                   4
@@ -72,6 +75,8 @@
 #define MEMP_NUM_TCP_PCB_LISTEN         2
 #define TCP_SND_QUEUELEN                6
 #define MEMP_NUM_TCP_SEG                16
+
+#define LWIP_RAND() sys_random()
 
 //#define TCPIP_DEBUG      LWIP_DBG_ON
 //#define NETIF_DEBUG      LWIP_DBG_ON

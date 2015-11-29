@@ -46,7 +46,7 @@ include $(RELROOT)make/common.mak
 
 NANO = 1
 TARGET = wiced-test
-SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c
+SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c ap.c
 SRC_HDR = 
 SRC_OBJ =
 SRC_LIB =
@@ -56,7 +56,7 @@ CMSIS_MODULES=$(CURRENTDIR)/../cmsis-ports/stm32f2xx
 STM32_DEFINES = HSE_VALUE=26000000
 #STM32_CHIP=STM32F205xx
 #export STM32_CHIP
-MODULES += ../picoos-lwip ../wiced-driver
+MODULES += ../picoos-lwip ../wiced-driver ../eshell
 
 DIR_CONFIG = $(CURRENTDIR)
 DIR_OUTPUT = $(CURRENTDIR)/bin
