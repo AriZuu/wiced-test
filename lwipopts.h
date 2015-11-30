@@ -65,7 +65,7 @@
 #define LWIP_STATS	                    1
 #define LWIP_STATS_DISPLAY	            0
 
-#define LWIP_DHCP                       0
+#define LWIP_DHCP                       1
 #define LWIP_NETIF_STATUS_CALLBACK      1
 
 #define PBUF_POOL_SIZE                  16
