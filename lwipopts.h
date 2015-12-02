@@ -47,6 +47,12 @@
 #define ETH_PAD_SIZE                    2
 #define PBUF_LINK_ENCAPSULATION_HLEN    (WICED_LINK_OVERHEAD_BELOW_ETHERNET_FRAME_MAX-ETH_PAD_SIZE)
 
+/*
+ * Ensure that buffers are big enough to hold largest packet that comes
+ * from wifi chip (16 bytes is for pbuf header).
+ */
+#define PBUF_POOL_BUFSIZE              (LWIP_MEM_ALIGN_SIZE(WICED_LINK_MTU) + 16 + 1)
+
 #define LWIP_NETIF_TX_SINGLE_PBUF      (1)
 
 #define TCPIP_THREAD_PRIO               7
