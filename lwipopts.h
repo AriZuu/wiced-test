@@ -83,6 +83,7 @@
 #define MEMP_NUM_TCP_SEG                16
 
 #define LWIP_RAND() sys_random()
+#define LWIP_COMPAT_SOCKETS		0
 
 //#define TCPIP_DEBUG      LWIP_DBG_ON
 //#define NETIF_DEBUG      LWIP_DBG_ON

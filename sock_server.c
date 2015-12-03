@@ -29,12 +29,11 @@
  */
 
 #include <picoos.h>
-#include "lwip/opt.h"
-#include "lwip/sockets.h"
-#include "lwip/sys.h"
+#include <picoos-lwip.h>
 
 
 #include <stdlib.h>
+#include <unistd.h>
 
 void tcpClientThread(void*);
 void tcpServerThread(void*);
@@ -47,11 +46,11 @@ void tcpClientThread(void* arg)
   nosPrintf("in tcp client\n");
   for (i = 0; i < 5; i++) {
 
-    lwip_write(sock, "Hello!\n", 7);
+    write(sock, "Hello!\n", 7);
     posTaskSleep(MS(1000));
   }
 
-  lwip_close(sock);
+  close(sock);
 }
 
 void tcpServerThread(void* arg)
@@ -61,7 +60,7 @@ void tcpServerThread(void* arg)
   struct sockaddr_in myAddr, peerAddr;
   int status;
 
-  sockd = lwip_socket(AF_INET, SOCK_STREAM, 0);
+  sockd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockd == -1) {
 
     nosPrintf("Socket creation error\n");
@@ -75,14 +74,14 @@ void tcpServerThread(void* arg)
   myAddr.sin_addr.s_addr = INADDR_ANY;
   myAddr.sin_port = htons(23);
 
-  status = lwip_bind(sockd, (struct sockaddr*)&myAddr, sizeof(myAddr));
+  status = bind(sockd, (struct sockaddr*)&myAddr, sizeof(myAddr));
   if (status == -1) {
 
     nosPrintf("Binding error\n");
     return;
   }
 
-  status = lwip_listen(sockd, 5);
+  status = listen(sockd, 5);
   if (status == -1) {
 
     nosPrintf("Listening error\n");
@@ -106,7 +105,7 @@ void tcpServerThread(void* arg)
  * Create thread to serve connection.
  */
     if (posTaskCreate(tcpClientThread, (void*)(long)sockd2, 5, 512) == NULL)
-       lwip_close(sockd2);
+       close(sockd2);
 
   }
 }

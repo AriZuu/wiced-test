@@ -30,6 +30,7 @@
 
 #include <picoos.h>
 #include <picoos-u.h>
+#include <picoos-lwip.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -101,6 +102,7 @@ static void mainTask(void* arg)
 
   uosInit();
   uosBootDiag();
+  lwipMount();
 /* 
  * Provide a filesystem which contains Wifi firmware to Wiced driver.
  */
