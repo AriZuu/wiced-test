@@ -49,9 +49,9 @@
 
 /*
  * Ensure that buffers are big enough to hold largest packet that comes
- * from wifi chip (16 bytes is for pbuf header).
+ * from wifi chip.
  */
-#define PBUF_POOL_BUFSIZE              (LWIP_MEM_ALIGN_SIZE(WICED_LINK_MTU) + 16 + 1)
+#define PBUF_POOL_BUFSIZE              (WICED_LINK_MTU)
 
 #define LWIP_NETIF_TX_SINGLE_PBUF      (1)
 
