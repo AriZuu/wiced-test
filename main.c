@@ -102,7 +102,7 @@ static void mainTask(void* arg)
 
   uosInit();
   uosBootDiag();
-  lwipMount();
+  netInit();
 /* 
  * Provide a filesystem which contains Wifi firmware to Wiced driver.
  */
