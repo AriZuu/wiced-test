@@ -124,6 +124,7 @@ static void mainTask(void* arg)
  */
   nosTaskCreate(tcpServerThread, NULL, 6, 1400, "accept");
 
+  eshStartTelnetd();
   eshConsole();
 
 #if 0
