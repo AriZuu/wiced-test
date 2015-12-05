@@ -72,7 +72,7 @@ void tcpServerThread(void* arg)
  */
   myAddr.sin_family = AF_INET;
   myAddr.sin_addr.s_addr = INADDR_ANY;
-  myAddr.sin_port = htons(23);
+  myAddr.sin_port = htons(24);
 
   status = bind(sockd, (struct sockaddr*)&myAddr, sizeof(myAddr));
   if (status == -1) {
