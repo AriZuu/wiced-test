@@ -188,6 +188,7 @@ const EshCommand *eshCommandList[] = {
   &apCommand,
   &eshPingCommand,
   &eshHelpCommand,
+  &eshExitCommand,
   NULL
 };
 
