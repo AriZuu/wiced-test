@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, Ari Suutari <ari@stonepile.fi>.
+ * Copyright (c) 2015, Ari Suutari <ari@stonepile.fi>.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,5 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * Memory layout.
- */
-
-MEMORY {
-
-/*
- * sector0: interrupt vectors
- */
-  boot(rx)	: ORIGIN = 0x08000000, LENGTH = 16K
-/*
- * sector1: settings
- * sectors2-11: code
- */
-  flash(rx)	: ORIGIN = 0x08008000, LENGTH = 992K
-  ram(rwx)	: ORIGIN = 0x20000000, LENGTH = 128K
-}
-
-INCLUDE cortex-split.ld
+void checkConfig(void);
+void checkAP(void);

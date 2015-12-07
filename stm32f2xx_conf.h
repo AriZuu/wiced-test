@@ -42,6 +42,7 @@
 #include "stm32f2xx_spi.h"
 #include "stm32f2xx_wwdg.h"
 #include "stm32f2xx_rtc.h"
+#include "stm32f2xx_flash.h"
 #include "misc.h"
 
 #define assert_param(expr) ((void)0)

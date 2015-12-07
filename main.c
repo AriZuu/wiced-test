@@ -52,6 +52,8 @@
 #include "wwd_network.h"
 #include "wwd_crypto.h"
 
+#include "wiced_test.h"
+
 extern const UosRomFile romFiles[];
 
 void tcpServerThread(void*);
@@ -90,7 +92,7 @@ static void tcpipInitDone(void *arg)
   wwd_wifi_get_random(&r, sizeof(r));
   sys_random_init(r);
 
-  /*
+/*
  * Signal main thread that we are done.
  */
   sys_sem_signal(sem);
@@ -102,6 +104,8 @@ static void mainTask(void* arg)
 
   uosInit();
   uosBootDiag();
+ 
+  checkConfig();
   netInit();
 /* 
  * Provide a filesystem which contains Wifi firmware to Wiced driver.
@@ -118,6 +122,7 @@ static void mainTask(void* arg)
   tcpip_init(tcpipInitDone, &sem);
   sys_sem_wait(&sem);
   nosPrintf("TCP/IP initialized.\n");
+  checkAP();
 
 /*
  * Start simple hello word server.
