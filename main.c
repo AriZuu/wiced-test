@@ -60,6 +60,7 @@ void tcpServerThread(void*);
 
 static wiced_mac_t   myMac             = { {  0, 0, 0, 0, 0, 0 } };
 
+extern struct netif defaultIf;
 /*
  * This is called by lwip when basic initialization has been completed.
  */
@@ -91,6 +92,32 @@ static void tcpipInitDone(void *arg)
 
   wwd_wifi_get_random(&r, sizeof(r));
   sys_random_init(r);
+
+  ip_addr_t ipaddr, netmask, gw;
+
+#if LWIP_DHCP != 0
+
+  ip_addr_set_zero( &gw );
+  ip_addr_set_zero( &ipaddr );
+  ip_addr_set_zero( &netmask );
+
+#else
+
+  IP4_ADDR(&gw, 192,168,61,1);
+  IP4_ADDR(&ipaddr, 192,168,61,55);
+  IP4_ADDR(&netmask, 255,255,255,0);
+
+#endif
+
+  netif_add(&defaultIf,
+                     &ipaddr,
+                     &netmask,
+                     &gw,
+                     WWD_STA_INTERFACE,
+                     ethernetif_init,
+                     tcpip_input);
+
+  netif_set_default(&defaultIf);
 
 /*
  * Signal main thread that we are done.

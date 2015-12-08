@@ -108,32 +108,6 @@ struct netif defaultIf;
 
 static void addEthernetIf()
 {
-  ip_addr_t ipaddr, netmask, gw;
-
-#if LWIP_DHCP != 0
-
-  ip_addr_set_zero( &gw );
-  ip_addr_set_zero( &ipaddr );
-  ip_addr_set_zero( &netmask );
-
-#else
-
-  IP4_ADDR(&gw, 192,168,61,1);
-  IP4_ADDR(&ipaddr, 192,168,61,55);
-  IP4_ADDR(&netmask, 255,255,255,0);
-
-#endif
-
-  netifapi_netif_add(&defaultIf,
-                     &ipaddr,
-                     &netmask,
-                     &gw,
-                     WWD_STA_INTERFACE,
-                     ethernetif_init,
-                     tcpip_input);
-
-  netifapi_netif_set_default(&defaultIf);
-
 #if LWIP_DHCP != 0
 
   netifapi_netif_set_up(&defaultIf);
