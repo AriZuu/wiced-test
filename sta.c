@@ -182,7 +182,7 @@ static int join()
   return 0;
 }
 
-static int ap(EshContext* ctx)
+static int sta(EshContext* ctx)
 {
 
   eshCheckNamedArgsUsed(ctx);
@@ -195,7 +195,7 @@ static int ap(EshContext* ctx)
 
   if (ap == NULL || pass == NULL) {
 
-    eshPrintf(ctx, "Usage: ap [--save] ap pass\n");
+    eshPrintf(ctx, "Usage: sta --reset | ap pass\n");
     return -1;
   }
 
@@ -262,10 +262,10 @@ static int wr(EshContext* ctx)
   return 0;
 }
 
-const EshCommand apCommand = {
-  .name = "ap",
-  .help = "ap pass\nassociate with given wifi access point.",
-  .handler = ap
+const EshCommand staCommand = {
+  .name = "sta",
+  .help = "--reset | ap pass\ndisassociate/associate with given wifi access point.",
+  .handler = sta
 }; 
 
 const EshCommand wrCommand = {
@@ -276,7 +276,7 @@ const EshCommand wrCommand = {
 
 const EshCommand *eshCommandList[] = {
 
-  &apCommand,
+  &staCommand,
   &wrCommand,
   &eshPingCommand,
   &eshHelpCommand,
