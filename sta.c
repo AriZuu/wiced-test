@@ -153,6 +153,9 @@ static int wifiUp()
   printf("Join OK.\n");
   addEthernetIf();
   alreadyJoined = true;
+
+  // Turn RED led off.
+  GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_SET);
   return 0;
 }
 
