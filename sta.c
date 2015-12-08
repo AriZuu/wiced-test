@@ -133,7 +133,7 @@ static void addEthernetIf()
   printf("Ethernet IF added.\n");
 }
 
-static int join()
+static int wifiUp()
 {
   wiced_ssid_t ssid;
  
@@ -156,16 +156,49 @@ static int join()
   return 0;
 }
 
+static void wifiDown()
+{
+#if LWIP_DHCP != 0
+
+  dhcp_stop(&defaultIf);
+
+#endif
+
+  netif_set_down(&defaultIf);
+  wwd_wifi_leave(WWD_STA_INTERFACE);
+  wwd_wifi_set_down();
+}
+
 static int sta(EshContext* ctx)
 {
+  char* reset = eshNamedArg(ctx, "reset", false);
+  char* ap;
+  char* pass;
 
   eshCheckNamedArgsUsed(ctx);
-  char* ap = eshNextArg(ctx, true);
-  char* pass = eshNextArg(ctx, true);
+
+  if (reset == NULL) {
+
+    ap = eshNextArg(ctx, true);
+    pass = eshNextArg(ctx, true);
+  }
 
   eshCheckArgsUsed(ctx);
   if (eshArgError(ctx) != EshOK)
     return -1;
+
+  if (reset) {
+
+    if (alreadyJoined) {
+
+      wifiDown();
+      eshPrintf(ctx, "Left ap %s.\n", config.ap);
+   }
+
+    strcpy(config.ap, "");
+    strcpy(config.pass, "");
+    return 0;
+  }
 
   if (ap == NULL || pass == NULL) {
 
@@ -182,7 +215,7 @@ static int sta(EshContext* ctx)
   strcpy(config.ap, ap);
   strcpy(config.pass, pass);
   eshPrintf(ctx, "Joining %s with password %s\n", config.ap, config.pass);
-  if (join() == -1)
+  if (wifiUp() == -1)
     eshPrintf(ctx, "Join failed.\n");
 
   return 0;
@@ -193,7 +226,7 @@ void checkAP()
   if (strlen(config.ap) > 0 && strlen(config.pass) > 0) {
 
     printf("Joining %s...\n", config.ap);
-    join();
+    wifiUp();
   }
 }
 
