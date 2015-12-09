@@ -224,12 +224,32 @@ static int sta(EshContext* ctx)
   return 0;
 }
 
+static void joinThread(void* arg)
+{
+  do {
+    
+    posTaskSleep(MS(5000));
+
+  } while (config.ap[0] != '\0' &&
+           config.pass[0] != '\0' &&
+           !alreadyJoined &&
+           wifiUp() == -1);
+
+  printf("Background join exiting.\n");
+}
+
 void checkAP()
 {
   if (strlen(config.ap) > 0 && strlen(config.pass) > 0) {
 
-    printf("Joining %s...\n", config.ap);
-    wifiUp();
+    printf("Joining %s...", config.ap);
+    if (wifiUp() == -1) {
+
+       printf(" failed, continuing join in background.\n");
+       posTaskCreate(joinThread, NULL, 5, 1024);
+    }
+
+    printf(" OK.\n");
   }
 }
 
