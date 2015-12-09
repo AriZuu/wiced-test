@@ -132,7 +132,7 @@ static void mainTask(void* arg)
   uosInit();
   uosBootDiag();
  
-  checkConfig();
+  initConfig();
   netInit();
 /* 
  * Provide a filesystem which contains Wifi firmware to Wiced driver.

@@ -28,5 +28,5 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-void checkConfig(void);
+void initConfig(void);
 void checkAP(void);

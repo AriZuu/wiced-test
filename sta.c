@@ -70,12 +70,13 @@ typedef struct {
 
 static Config config;
 static bool alreadyJoined = false;
+static POSMUTEX_t configMutex;
 
-
-void checkConfig()
+void initConfig()
 {
   const Config* cf = (const Config*)0x08004000; // flash sector 1
 
+  configMutex = posMutexCreate();
   if (cf->magic != MAGIC || cf->len != sizeof(Config)) {
 
     printf("Configuration data invalid, using defaults.\n");
@@ -140,18 +141,17 @@ static int wifiUp()
   /*
    * As AP network name and password and attempt to join.
    */
+  posMutexLock(configMutex);
   strcpy((char*)ssid.value, config.ap);
   ssid.length = strlen(config.ap);
+  posMutexUnlock(configMutex);
 
-  if (wwd_wifi_join(&ssid, WICED_SECURITY_WPA2_MIXED_PSK, (uint8_t*)config.pass, strlen(config.pass), NULL) != WWD_SUCCESS) {
-
-    config.ap[0] = '\0';
-    config.pass[0] = '\0';
+  if (wwd_wifi_join(&ssid, WICED_SECURITY_WPA2_MIXED_PSK, (uint8_t*)config.pass, strlen(config.pass), NULL) != WWD_SUCCESS)
     return -1;
-  }
 
   printf("Join OK.\n");
   addEthernetIf();
+
   alreadyJoined = true;
 
   // Turn RED led off.
@@ -161,6 +161,8 @@ static int wifiUp()
 
 static void wifiDown()
 {
+  // Turn RED led on.
+  GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_RESET);
 #if LWIP_DHCP != 0
 
   dhcp_stop(&defaultIf);
@@ -169,7 +171,6 @@ static void wifiDown()
 
   netif_set_down(&defaultIf);
   wwd_wifi_leave(WWD_STA_INTERFACE);
-  wwd_wifi_set_down();
 }
 
 static int sta(EshContext* ctx)
@@ -195,11 +196,14 @@ static int sta(EshContext* ctx)
     if (alreadyJoined) {
 
       wifiDown();
-      eshPrintf(ctx, "Left ap %s.\n", config.ap);
-   }
+      eshPrintf(ctx, "Left ap.\n");
+      alreadyJoined = false;
+    }
 
+    posMutexLock(configMutex);
     strcpy(config.ap, "");
     strcpy(config.pass, "");
+    posMutexUnlock(configMutex);
     return 0;
   }
 
@@ -215,8 +219,11 @@ static int sta(EshContext* ctx)
     return -1;
   }
 
+  posMutexLock(configMutex);
   strcpy(config.ap, ap);
   strcpy(config.pass, pass);
+  posMutexUnlock(configMutex);
+
   eshPrintf(ctx, "Joining %s with password %s\n", config.ap, config.pass);
   if (wifiUp() == -1)
     eshPrintf(ctx, "Join failed.\n");
@@ -240,16 +247,14 @@ static void joinThread(void* arg)
 
 void checkAP()
 {
-  if (strlen(config.ap) > 0 && strlen(config.pass) > 0) {
+  if (config.ap[0] != '\0' && config.pass[0] != '\0') {
 
-    printf("Joining %s...", config.ap);
+    printf("Joining %s.\n", config.ap);
     if (wifiUp() == -1) {
 
-       printf(" failed, continuing join in background.\n");
+       printf("Join failed, retrying join in background.\n");
        posTaskCreate(joinThread, NULL, 5, 1024);
     }
-
-    printf(" OK.\n");
   }
 }
 
