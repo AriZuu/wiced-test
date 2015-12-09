@@ -201,6 +201,6 @@ int main(int argc, char **argv)
 
 #endif
 
-  nosInit(mainTask, NULL, 1, 20000, 512);
+  nosInit(mainTask, NULL, 1, 10000, 512);
   return 0;
 }

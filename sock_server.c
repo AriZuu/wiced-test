@@ -104,7 +104,7 @@ void tcpServerThread(void* arg)
 /*
  * Create thread to serve connection.
  */
-    if (posTaskCreate(tcpClientThread, (void*)(long)sockd2, 5, 512) == NULL)
+    if (nosTaskCreate(tcpClientThread, (void*)(long)sockd2, 5, 512, "socktest") == NULL)
        close(sockd2);
 
   }
