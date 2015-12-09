@@ -313,6 +313,7 @@ const EshCommand *eshCommandList[] = {
 
   &staCommand,
   &wrCommand,
+  &eshTsCommand,
   &eshPingCommand,
   &eshHelpCommand,
   &eshExitCommand,
