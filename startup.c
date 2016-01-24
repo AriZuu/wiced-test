@@ -29,20 +29,12 @@
  */
 
 #include <picoos.h>
+#include <wiced-driver.h>
 #include "platform_init.h"
 
 void portSystemInit()
 {
-/*
- * Do WICED-specific initialization instead of standard CMSIS SystemInit.
- */
-  platform_init_system_clocks();
-  platform_init_memory();
-
-  platform_init_mcu_infrastructure( );
-  platform_init_external_devices( );
-
-  SystemCoreClockUpdate();
+  wdSystemInit();
 }
 
 void Default_Handler(void);
