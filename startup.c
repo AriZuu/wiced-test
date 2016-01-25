@@ -64,8 +64,8 @@ PORT_WEAK_HANDLER(DMA1_Stream1_irq);
 PORT_WEAK_HANDLER(DMA1_Stream2_irq);
 PORT_WEAK_HANDLER(DMA1_Stream3_irq);
 PORT_WEAK_HANDLER(DMA1_Stream4_irq);
-PORT_WEAK_HANDLER(DMA1_Stream5_irq);
-PORT_WEAK_HANDLER(DMA1_Stream6_irq);
+PORT_WEAK_HANDLER(DMA1_Stream5_IRQHandler);
+PORT_WEAK_HANDLER(DMA1_Stream6_IRQHandler);
 PORT_WEAK_HANDLER(ADC_irq);
 PORT_WEAK_HANDLER(CAN1_TX_irq);
 PORT_WEAK_HANDLER(CAN1_RX0_irq);
@@ -106,7 +106,7 @@ PORT_WEAK_HANDLER(TIM6_DAC_irq);
 PORT_WEAK_HANDLER(TIM7_irq);
 PORT_WEAK_HANDLER(DMA2_Stream0_irq);
 PORT_WEAK_HANDLER(DMA2_Stream1_irq);
-PORT_WEAK_HANDLER(DMA2_Stream2_irq);
+PORT_WEAK_HANDLER(DMA2_Stream2_IRQHandler);
 PORT_WEAK_HANDLER(DMA2_Stream3_irq);
 PORT_WEAK_HANDLER(DMA2_Stream4_irq);
 PORT_WEAK_HANDLER(ETH_irq);
@@ -118,7 +118,7 @@ PORT_WEAK_HANDLER(CAN2_SCE_irq);
 PORT_WEAK_HANDLER(OTG_FS_irq);
 PORT_WEAK_HANDLER(DMA2_Stream5_irq);
 PORT_WEAK_HANDLER(DMA2_Stream6_irq);
-PORT_WEAK_HANDLER(DMA2_Stream7_irq);
+PORT_WEAK_HANDLER(DMA2_Stream7_IRQHandler);
 PORT_WEAK_HANDLER(USART6_IRQHandler);
 PORT_WEAK_HANDLER(I2C3_EV_irq);
 PORT_WEAK_HANDLER(I2C3_ER_irq);
@@ -164,8 +164,8 @@ PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
     DMA1_Stream2_irq,           // DMA1 Stream 2
     DMA1_Stream3_irq,           // DMA1 Stream 3
     DMA1_Stream4_irq,           // DMA1 Stream 4
-    DMA1_Stream5_irq,           // DMA1 Stream 5
-    DMA1_Stream6_irq,           // DMA1 Stream 6
+    DMA1_Stream5_IRQHandler,    // DMA1 Stream 5
+    DMA1_Stream6_IRQHandler,    // DMA1 Stream 6
     ADC_irq,                    // ADC1, ADC2 and ADC3s
     CAN1_TX_irq,                // CAN1 TX
     CAN1_RX0_irq,               // CAN1 RX0
@@ -185,9 +185,9 @@ PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
     I2C2_ER_irq,                // I2C2 Error
     SPI1_irq,                   // SPI1
     SPI2_irq,                   // SPI2
-    USART1_IRQHandler,                 // USART1                                          
-    USART2_IRQHandler,                 // USART2                                          
-    USART3_IRQHandler,                 // USART3                                          
+    USART1_IRQHandler,          // USART1
+    USART2_IRQHandler,          // USART2
+    USART3_IRQHandler,          // USART3
     EXTI15_10_irq,              // External Line[15:10]s
     RTC_Alarm_irq,              // RTC Alarm (A and B) through EXTI Line
     OTG_FS_WKUP_irq,            // USB OTG FS Wakeup through EXTI line
@@ -197,17 +197,17 @@ PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
     TIM8_CC_irq,                // TIM8 Capture Compare
     DMA1_Stream7_irq,           // DMA1 Stream7
     FSMC_irq,                   // FSMC
-    SDIO_irq,                          // SDIO                                            
+    SDIO_irq,                   // SDIO
     TIM5_irq,                   // TIM5
     SPI3_irq,                   // SPI3
-    UART4_IRQHandler,                  // UART4                                           
-    UART5_IRQHandler,                  // UART5                                           
+    UART4_IRQHandler,           // UART4
+    UART5_IRQHandler,           // UART5
     TIM6_DAC_irq,               // TIM6 and DAC1&2 underrun errors
     TIM7_irq,                   // TIM7
     DMA2_Stream0_irq,           // DMA2 Stream 0
     DMA2_Stream1_irq,           // DMA2 Stream 1
-    DMA2_Stream2_irq,           // DMA2 Stream 2
-    DMA2_Stream3_irq,                  // DMA2 Stream 3                                   
+    DMA2_Stream2_IRQHandler,    // DMA2 Stream 2
+    DMA2_Stream3_irq,           // DMA2 Stream 3
     DMA2_Stream4_irq,           // DMA2 Stream 4
     ETH_irq,                    // Ethernet
     ETH_WKUP_irq,               // Ethernet Wakeup through EXTI line
@@ -218,8 +218,8 @@ PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
     OTG_FS_irq,                 // USB OTG FS
     DMA2_Stream5_irq,           // DMA2 Stream 5
     DMA2_Stream6_irq,           // DMA2 Stream 6
-    DMA2_Stream7_irq,           // DMA2 Stream 7
-    USART6_IRQHandler,                 // USART6                                           
+    DMA2_Stream7_IRQHandler,    // DMA2 Stream 7
+    USART6_IRQHandler,          // USART6
     I2C3_EV_irq,                // I2C3 event
     I2C3_ER_irq,                // I2C3 error
     OTG_HS_EP1_OUT_irq,         // USB OTG HS End Point 1 Out
