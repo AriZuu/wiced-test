@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Ari Suutari <ari@stonepile.fi>.
+ * Copyright (c) 2016, Ari Suutari <ari@stonepile.fi>.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,19 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-void initConfig(void);
-void checkAP(void);
-void wifiLedInit(void);
-void wifiLed(bool on);
+#include <picoos.h>
+#include <stdbool.h>
+#include "wiced_test.h"
+
+void wifiLedInit()
+{
+// Done by Wiced.
+}
+
+void wifiLed(bool on)
+{
+  if (on)
+    GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_RESET); // Turn RED led on.
+  else
+    GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_SET); // Turn RED led off.
+}

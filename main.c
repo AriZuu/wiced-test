@@ -201,6 +201,9 @@ int main(int argc, char **argv)
 
 #endif
 
+  wifiLedInit();
+  wifiLed(false);
+
   nosInit(mainTask, NULL, 1, 10000, 512);
   return 0;
 }

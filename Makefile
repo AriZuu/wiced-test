@@ -48,7 +48,7 @@ include $(RELROOT)make/common.mak
 
 NANO = 1
 TARGET = wiced-test
-SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c sta.c
+SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c sta.c EMW3162/led.c
 SRC_HDR = 
 SRC_OBJ =
 SRC_LIB =

@@ -153,16 +153,15 @@ static int wifiUp()
   addEthernetIf();
 
   alreadyJoined = true;
+  wifiLed(true);
 
-  // Turn RED led off.
-  GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_SET);
   return 0;
 }
 
 static void wifiDown()
 {
-  // Turn RED led on.
-  GPIO_WriteBit(GPIOB, GPIO_Pin_1, Bit_RESET);
+  wifiLed(false);
+
 #if LWIP_DHCP != 0
 
   dhcp_stop(&defaultIf);
