@@ -34,3 +34,15 @@ void USART1_IRQHandler(void);
 void SDIO_irq(void);
 void DMA2_Stream3_irq(void);
 
+/*
+ * These are interrupt handlers inside Wiced usart code.
+ * They are not used, but declare prototypes to avoid compiler
+ * warnings.
+ */
+void USART1_irq(void);
+void DMA2_Stream7_irq(void);
+void DMA2_Stream2_irq(void);
+void USART2_irq(void);
+void DMA1_Stream6_irq(void);
+void DMA1_Stream5_irq(void);
+
