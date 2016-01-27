@@ -41,8 +41,8 @@
  */
 
 
-#ifndef _POSCFG_H
-#define _POSCFG_H
+#ifndef _POSCFG_COMMON_H
+#define _POSCFG_COMMON_H
 
 
 /*---------------------------------------------------------------------------
@@ -537,8 +537,7 @@
 #define PORTCFG_IRQ_STACK_SIZE 2048
 #define PORTCFG_VECTORS 1
 #define PORTCFG_TICK_SYSTICK 1
-#define PORTCFG_CON_USART 1
 #define PORTCFG_CONOUT_ITM 0
 #define PORTCFG_API_MAX_PRI 2 // same as used by Wiced
 
-#endif /* _POSCFG_H */
+#endif /* _POSCFG_COMMON_H */
