@@ -30,7 +30,6 @@
 
 #include <picoos.h>
 #include <wiced-driver.h>
-#include "platform_init.h"
 
 void portSystemInit()
 {
@@ -129,6 +128,9 @@ PORT_WEAK_HANDLER(OTG_HS_irq);
 PORT_WEAK_HANDLER(DCMI_irq);
 PORT_WEAK_HANDLER(CRYP_irq);
 PORT_WEAK_HANDLER(HASH_RNG_irq);
+#ifdef STM32F411xE
+PORT_WEAK_HANDLER(FPU_irq);
+#endif
 
 PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
 { (PortExcHandlerFunc) __stack,        // stack pointer
@@ -229,4 +231,8 @@ PortExcHandlerFunc vectorTable[] __attribute__ ((section(".vectors"))) =
     DCMI_irq,                   // DCMI
     CRYP_irq,                   // CRYP crypto
     HASH_RNG_irq                // Hash and Rng
+#ifdef STM32F411xE
+    ,
+    FPU_irq
+#endif
 };

@@ -31,33 +31,50 @@ RELROOT = ../picoos/
 
 PORT = cortex-m
 CPU = stm32
-CORTEX = m3
-export CORTEX
 
 BUILD ?= DEBUG
 EXTRA_CFLAGS=-Os
 export EXTRA_CFLAGS
-LD_SCRIPTS=emw3162.ld
+
+WICED_PLATFORM  ?= EMW3165
+
+ifeq '$(WICED_PLATFORM)' 'EMW3162'
 
 WICED_CHIP      = 43362A2
 WICED_MCU       = STM32F2xx
-WICED_PLATFORM  = EMW3162
 WICED_BUS       = SDIO
+CMSIS_MODULES	= $(CURRENTDIR)/../cmsis-ports/stm32f2xx
+CORTEX = m3
+LD_SCRIPTS 	= emw3162.ld
+
+endif
+ifeq '$(WICED_PLATFORM)' 'EMW3165'
+
+WICED_CHIP      = 43362A2
+WICED_MCU       = STM32F4xx
+WICED_BUS       = SDIO
+CMSIS_MODULES	= $(CURRENTDIR)/../cmsis-ports/stm32f4xx
+STM32_CHIP	= STM32F411xE
+CORTEX = m4
+LD_SCRIPTS 	= emw3165.ld
+
+endif
+
+export CORTEX
+
 
 include $(RELROOT)make/common.mak
 
 NANO = 1
 TARGET = wiced-test
-SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c sta.c EMW3162/led.c
+SRC_TXT =	 main.c  startup.c romfiles.c sock_server.c sta.c $(WICED_PLATFORM)/led.c
 SRC_HDR = 
 SRC_OBJ =
 SRC_LIB =
 
 # CMSIS setup
-CMSIS_MODULES=$(CURRENTDIR)/../cmsis-ports/stm32f2xx
 STM32_DEFINES = HSE_VALUE=26000000
-#STM32_CHIP=STM32F205xx
-#export STM32_CHIP
+
 MODULES += ../picoos-lwip ../wiced-driver ../eshell
 
 DIR_CONFIG = $(CURRENTDIR)/$(WICED_PLATFORM) $(CURRENTDIR)
