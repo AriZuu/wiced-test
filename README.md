@@ -1,8 +1,10 @@
 This is a simple test for MXCHIP EMW3162 board with
 LwIP (from picoos-lwip library) and WICED WWD driver
-(from wiced-driver library).
+(from wiced-driver library). It works also for WifiMcu.
 
-Board has STM32F205RGT6 MCU and broadcom BCM43362A2 Wifi chip.
+EMW3162 board has STM32F205RGT6 MCU and broadcom BCM43362A2 Wifi chip.
+WifiMCU has EMW3165 module, which has STM32F411CE MCU.
+Board must be selected in Makefile before building.
 
 To build this following libraries are needed:
 
