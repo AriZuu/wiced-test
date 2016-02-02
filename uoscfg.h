@@ -35,3 +35,4 @@
 #define UOSCFG_FS_ROM 2
 #define UOSCFG_FAT 0
 #define UOSCFG_RING 1
+#define UOSCFG_CONFIG_PREALLOC 5

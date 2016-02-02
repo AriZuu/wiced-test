@@ -57,35 +57,152 @@
 #include "eshell-commands.h"
 #include "wiced_test.h"
 
+static bool alreadyJoined = false;
+
 #define MAGIC 0x1942
 #define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
 
 typedef struct {
 
+  union {
+    int aliger;
+    char key[UOS_CONFIG_KEYSIZE];
+  };
+
+  char value[UOS_CONFIG_VALUESIZE];
+} KV;
+
+typedef struct {
+
   uint32_t magic;
   uint32_t len;
-  char ap[40];
-  char pass[40];
-} Config;
+} ConfigHeader;
 
-static Config config;
-static bool alreadyJoined = false;
-static POSMUTEX_t configMutex;
+typedef struct {
+
+  ConfigHeader hdr;
+  KV kv[UOSCFG_CONFIG_PREALLOC];
+} Config;
 
 void initConfig()
 {
   const Config* cf = (const Config*)0x08004000; // flash sector 1
 
-  configMutex = posMutexCreate();
-  if (cf->magic != MAGIC || cf->len != sizeof(Config)) {
+  uosConfigInit();
+  if (cf->hdr.magic != MAGIC || cf->hdr.len != sizeof(Config)) {
 
     printf("Configuration data invalid, using defaults.\n");
-    memset(&config, '\0', sizeof(Config));
-    config.magic = MAGIC;
-    config.len = sizeof(Config);
   }
-  else
-    memcpy(&config, cf, sizeof(Config));
+  else {
+
+    int i;
+    const KV* kv;
+
+    kv = cf->kv;
+    for (i = 0; i < UOSCFG_CONFIG_PREALLOC; i++, kv++) {
+
+      if (kv->key[0] == '\0')
+        break;
+
+      uosConfigSet(kv->key, kv->value);
+    }
+  }
+}
+
+static uint32_t address;
+
+static int wrSaver(void*context, const char* key, const char* value)
+{
+  KV kv;
+  uint32_t* data;
+  uint32_t byte;
+
+  memset(&kv, '\0', sizeof(kv));
+  strcpy(kv.key, key);
+  strcpy(kv.value, value);
+
+  data = (uint32_t*)&kv;
+
+  for (byte = 0; byte < sizeof(KV); byte += 4, address += 4, data++) {
+
+    if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
+
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+static int wr(EshContext* ctx)
+{
+  uint32_t byte;
+  uint32_t* data;
+  ConfigHeader hdr;
+
+  eshCheckNamedArgsUsed(ctx);
+
+  eshCheckArgsUsed(ctx);
+  if (eshArgError(ctx) != EshOK)
+    return -1;
+
+  memset(&hdr, '\0', sizeof(ConfigHeader));
+  hdr.magic = MAGIC;
+  hdr.len = sizeof(Config);
+ 
+  FLASH_Unlock();
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
+
+  if (FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3) != FLASH_COMPLETE) {
+
+    FLASH_Lock(); 
+    eshPrintf(ctx, "Config flash erase failed.\n");
+    return -1;
+  }
+
+  address = ADDR_FLASH_SECTOR_1;
+
+  data = (uint32_t*)&hdr;
+  for (byte = 0; byte < sizeof(ConfigHeader); byte += 4, address += 4, data++) {
+
+    if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
+
+      eshPrintf(ctx, "Config flash write failed.\n");
+      break;
+    }
+  }
+
+  if (uosConfigSaveEntries(NULL, wrSaver) == -1) {
+
+    eshPrintf(ctx, "Config flash write failed.\n");
+  }
+
+  wrSaver(NULL, "", "");
+  FLASH_Lock(); 
+  return 0;
+}
+
+static int clear(EshContext* ctx)
+{
+  eshCheckNamedArgsUsed(ctx);
+  eshCheckArgsUsed(ctx);
+  if (eshArgError(ctx) != EshOK)
+    return -1;
+
+  FLASH_Unlock();
+  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
+
+  if (FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3) != FLASH_COMPLETE) {
+
+    FLASH_Lock(); 
+    eshPrintf(ctx, "Config flash erase failed.\n");
+    return -1;
+  }
+
+  FLASH_Lock(); 
+  return 0;
 }
 
 void ifStatusCallback(struct netif *netif);
@@ -141,12 +258,14 @@ static int wifiUp()
   /*
    * As AP network name and password and attempt to join.
    */
-  posMutexLock(configMutex);
-  strcpy((char*)ssid.value, config.ap);
-  ssid.length = strlen(config.ap);
-  posMutexUnlock(configMutex);
 
-  if (wwd_wifi_join(&ssid, WICED_SECURITY_WPA2_MIXED_PSK, (uint8_t*)config.pass, strlen(config.pass), NULL) != WWD_SUCCESS)
+  const char* ap = uosConfigGet("ap");
+  const char* pass = uosConfigGet("pass");
+
+  strcpy((char*)ssid.value, ap);
+  ssid.length = strlen(ap);
+
+  if (wwd_wifi_join(&ssid, WICED_SECURITY_WPA2_MIXED_PSK, (uint8_t*)pass, strlen(pass), NULL) != WWD_SUCCESS)
     return -1;
 
   printf("Join OK.\n");
@@ -199,10 +318,8 @@ static int sta(EshContext* ctx)
       alreadyJoined = false;
     }
 
-    posMutexLock(configMutex);
-    strcpy(config.ap, "");
-    strcpy(config.pass, "");
-    posMutexUnlock(configMutex);
+    uosConfigSet("ap", "");
+    uosConfigSet("pass", "");
     return 0;
   }
 
@@ -218,12 +335,10 @@ static int sta(EshContext* ctx)
     return -1;
   }
 
-  posMutexLock(configMutex);
-  strcpy(config.ap, ap);
-  strcpy(config.pass, pass);
-  posMutexUnlock(configMutex);
+  uosConfigSet("ap", ap);
+  uosConfigSet("pass", pass);
 
-  eshPrintf(ctx, "Joining %s with password %s\n", config.ap, config.pass);
+  eshPrintf(ctx, "Joining %s with password %s\n", ap, pass);
   if (wifiUp() == -1)
     eshPrintf(ctx, "Join failed.\n");
 
@@ -232,12 +347,18 @@ static int sta(EshContext* ctx)
 
 static void joinThread(void* arg)
 {
+  const char* ap;
+  const char* pass;
+
   do {
     
+    ap = uosConfigGet("ap");
+    pass = uosConfigGet("pass");
+
     posTaskSleep(MS(5000));
 
-  } while (config.ap[0] != '\0' &&
-           config.pass[0] != '\0' &&
+  } while (ap &&
+           pass &&
            !alreadyJoined &&
            wifiUp() == -1);
 
@@ -246,54 +367,18 @@ static void joinThread(void* arg)
 
 void checkAP()
 {
-  if (config.ap[0] != '\0' && config.pass[0] != '\0') {
+  const char* ap = uosConfigGet("ap");
+  const char* pass = uosConfigGet("pass");
 
-    printf("Joining %s.\n", config.ap);
+  if (ap[0] != '\0' && pass[0] != '\0') {
+
+    printf("Joining %s.\n", ap);
     if (wifiUp() == -1) {
 
        printf("Join failed, retrying join in background.\n");
        posTaskCreate(joinThread, NULL, 5, 1024);
     }
   }
-}
-
-static int wr(EshContext* ctx)
-{
-  uint32_t address;
-  uint32_t* data;
-
-  eshCheckNamedArgsUsed(ctx);
-
-  eshCheckArgsUsed(ctx);
-  if (eshArgError(ctx) != EshOK)
-    return -1;
-
-  FLASH_Unlock();
-  FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
-                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
-
-  if (FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3) != FLASH_COMPLETE) {
-
-    FLASH_Lock(); 
-    eshPrintf(ctx, "Config flash erase failed.\n");
-    return -1;
-  }
-
-  data = (uint32_t*)&config;
-
-  for (address = ADDR_FLASH_SECTOR_1; address < ADDR_FLASH_SECTOR_1 + sizeof(Config); address += 4) {
-
-    if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
-
-      eshPrintf(ctx, "Config flash write failed.\n");
-      break;
-    }
-
-    ++data;
-  }
-
-  FLASH_Lock(); 
-  return 0;
 }
 
 const EshCommand staCommand = {
@@ -308,10 +393,17 @@ const EshCommand wrCommand = {
   .handler = wr
 }; 
 
+const EshCommand clearCommand = {
+  .name = "clear",
+  .help = "clear saved settings from flash",
+  .handler = clear
+}; 
+
 const EshCommand *eshCommandList[] = {
 
   &staCommand,
   &wrCommand,
+  &clearCommand,
   &eshTsCommand,
   &eshPingCommand,
   &eshHelpCommand,
