@@ -62,83 +62,97 @@ static bool alreadyJoined = false;
 #define MAGIC 0x1942
 #define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base @ of Sector 1, 16 Kbytes */
 
-typedef struct {
+#define WR_BUFSIZE (UOS_CONFIG_KEYSIZE + UOS_CONFIG_VALUESIZE + 16)
 
+typedef struct {
+  int len;
   union {
-    int aliger;
-    char key[UOS_CONFIG_KEYSIZE];
+    uint32_t aligner;
+    char buf[WR_BUFSIZE];
   };
-
-  char value[UOS_CONFIG_VALUESIZE];
-} KV;
-
-typedef struct {
-
-  uint32_t magic;
-  uint32_t len;
-} ConfigHeader;
-
-typedef struct {
-
-  ConfigHeader hdr;
-  KV kv[UOSCFG_CONFIG_PREALLOC];
-} Config;
+} WrContext;
 
 void initConfig()
 {
-  const Config* cf = (const Config*)0x08004000; // flash sector 1
+  const uint32_t* cf = (const uint32_t*)0x08004000; // flash sector 1
 
   uosConfigInit();
-  if (cf->hdr.magic != MAGIC || cf->hdr.len != sizeof(Config)) {
+  if (*cf != MAGIC) {
 
     printf("Configuration data invalid, using defaults.\n");
   }
   else {
 
     int i;
-    const KV* kv;
+    const char* cfStr = (const char*)(cf + 1);
+    const char* nl;
+    const char* eq;
+    char key[UOS_CONFIG_KEYSIZE];
+    char val[UOS_CONFIG_VALUESIZE];
 
-    kv = cf->kv;
-    for (i = 0; i < UOSCFG_CONFIG_PREALLOC; i++, kv++) {
+    while ((nl = strchr(cfStr, '\n'))) {
 
-      if (kv->key[0] == '\0')
+      eq = strchr(cfStr, '=');
+      if (eq > nl)
         break;
 
-      uosConfigSet(kv->key, kv->value);
+      i = sizeof(key);
+      if (eq - cfStr + 1< i)
+        i = eq - cfStr + 1;
+
+      strlcpy(key, cfStr, i);
+
+      i = sizeof(val);
+      ++eq;
+      if (nl - eq + 1 < i)
+        i = nl - eq + 1;
+      strlcpy(val, eq, i);
+      uosConfigSet(key, val);
+
+      cfStr = nl + 1;
     }
+
   }
 }
 
 static uint32_t address;
 
-static int wrSaver(void*context, const char* key, const char* value)
+static int wrSaver(void* vc, const char* key, const char* value)
 {
-  KV kv;
+  char* ptr;
   uint32_t* data;
-  uint32_t byte;
+  WrContext* context = (WrContext*)vc;
 
-  memset(&kv, '\0', sizeof(kv));
-  strcpy(kv.key, key);
-  strcpy(kv.value, value);
+  ptr = context->buf + context->len;
+  ptr = stpcpy(ptr, key);
+  ptr = stpcpy(ptr, "=");
+  ptr = stpcpy(ptr, value);
+  ptr = stpcpy(ptr, "\n");
 
-  data = (uint32_t*)&kv;
+  context->len = ptr - context->buf;
 
-  for (byte = 0; byte < sizeof(KV); byte += 4, address += 4, data++) {
+  data = (uint32_t*)&context->aligner;
+
+  while (context->len >= 4) {
 
     if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
 
       return -1;
     }
+
+    ++data;
+    address += 4;
+    context->len -= 4;
   }
+
+  if (context->len) 
+    memmove(context->buf, data, context->len);
 
   return 0;
 }
 
 static int wr(EshContext* ctx)
 {
-  uint32_t byte;
-  uint32_t* data;
-  ConfigHeader hdr;
 
   eshCheckNamedArgsUsed(ctx);
 
@@ -146,10 +160,9 @@ static int wr(EshContext* ctx)
   if (eshArgError(ctx) != EshOK)
     return -1;
 
-  memset(&hdr, '\0', sizeof(ConfigHeader));
-  hdr.magic = MAGIC;
-  hdr.len = sizeof(Config);
- 
+  uint32_t* data;
+  WrContext context;
+
   FLASH_Unlock();
   FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
                   FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR); 
@@ -162,23 +175,28 @@ static int wr(EshContext* ctx)
   }
 
   address = ADDR_FLASH_SECTOR_1;
-
-  data = (uint32_t*)&hdr;
-  for (byte = 0; byte < sizeof(ConfigHeader); byte += 4, address += 4, data++) {
-
-    if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
+  if (FLASH_ProgramWord(address, MAGIC) != FLASH_COMPLETE) {
 
       eshPrintf(ctx, "Config flash write failed.\n");
-      break;
-    }
   }
 
-  if (uosConfigSaveEntries(NULL, wrSaver) == -1) {
+  address += 4;
+  context.len = 0;
+
+  if (uosConfigSaveEntries(&context, wrSaver) == -1) {
 
     eshPrintf(ctx, "Config flash write failed.\n");
   }
 
-  wrSaver(NULL, "", "");
+  context.buf[context.len] = '\0';
+  context.len++;
+
+  data = (uint32_t*)&context.aligner;
+  if (FLASH_ProgramWord(address, *data) != FLASH_COMPLETE) {
+
+      eshPrintf(ctx, "Config flash write failed.\n");
+  }
+
   FLASH_Lock(); 
   return 0;
 }
