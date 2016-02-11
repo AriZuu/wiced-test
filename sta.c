@@ -400,18 +400,21 @@ void checkAP()
 }
 
 const EshCommand staCommand = {
+  .flags = ESH_FLAG_CONSOLE,
   .name = "sta",
   .help = "--reset | ap pass\ndisassociate/associate with given wifi access point.",
   .handler = sta
 }; 
 
 const EshCommand wrCommand = {
+  .flags = 0,
   .name = "wr",
   .help = "save settings to flash",
   .handler = wr
 }; 
 
 const EshCommand clearCommand = {
+  .flags = 0,
   .name = "clear",
   .help = "clear saved settings from flash",
   .handler = clear
