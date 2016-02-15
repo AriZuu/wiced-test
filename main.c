@@ -97,9 +97,12 @@ static void tcpipInitDone(void *arg)
 
 #if LWIP_DHCP != 0
 
-  ip_addr_set_zero( &gw );
-  ip_addr_set_zero( &ipaddr );
-  ip_addr_set_zero( &netmask );
+  ip_addr_t* a;
+
+// Avoid compiler warnings.
+  a = &gw; ip_addr_set_zero_ip4(a);
+  a = &ipaddr; ip_addr_set_zero_ip4(a);
+  a = &netmask; ip_addr_set_zero_ip4(a);
 
 #else
 
@@ -110,9 +113,9 @@ static void tcpipInitDone(void *arg)
 #endif
 
   netif_add(&defaultIf,
-                     &ipaddr,
-                     &netmask,
-                     &gw,
+                     ip_2_ip4(&ipaddr),
+                     ip_2_ip4(&netmask),
+                     ip_2_ip4(&gw),
                      WWD_STA_INTERFACE,
                      ethernetif_init,
                      tcpip_input);

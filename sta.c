@@ -232,7 +232,7 @@ void ifStatusCallback(struct netif *netif)
 {
   if (netif_is_up(netif)) {
 
-    printf("netif up, ip %s\n", inet_ntoa(netif->ip_addr));
+    printf("netif up\n");
   }
   else {
 
@@ -263,7 +263,9 @@ static void addEthernetIf()
 #endif
 
 #if LWIP_IPV6
-  netifapi_netif_create_ip6_linklocal_address(&defaultIf, 1);
+  netif_create_ip6_linklocal_address(&defaultIf, 1);
+  netif_ip6_addr_set_state(&defaultIf, 0, IP6_ADDR_TENTATIVE);
+  defaultIf.ip6_autoconfig_enabled = 1;
 #endif
 
   printf("Ethernet IF added.\n");
@@ -427,6 +429,7 @@ const EshCommand *eshCommandList[] = {
   &clearCommand,
   &eshTsCommand,
   &eshPingCommand,
+  &eshIfconfigCommand,
   &eshHelpCommand,
   &eshExitCommand,
   NULL

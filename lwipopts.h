@@ -57,7 +57,7 @@
 
 #define TCPIP_THREAD_PRIO               7
 #define TCPIP_THREAD_STACKSIZE          3000
-#define LWIP_IPV6                       0
+#define LWIP_IPV6                       1
 #define LWIP_RAW                        1 // for ping
 #define LWIP_SO_RCVTIMEO                1
 #define LWIP_NETIF_API                  1
