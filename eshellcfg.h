@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015, Ari Suutari <ari@stonepile.fi>.
+ * Copyright (c) 2016, Ari Suutari <ari@stonepile.fi>.
  * All rights reserved. 
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,6 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define _FS_READONLY 1
-#define UOSCFG_SPIN_USECS 2
-#define UOSCFG_NEWLIB_SYSCALLS 1
-#define UOSCFG_MAX_OPEN_FILES 15
-#define UOSCFG_FS_ROM 2
-#define UOSCFG_FAT 0
-#define UOSCFG_RING 1
-#define UOSCFG_CONFIG 1
-#define UOSCFG_CONFIG_PREALLOC 5
+#define ESHELLCFG_ONEWIRE 0
+#define ESHELLCFG_LWIP 1
+
