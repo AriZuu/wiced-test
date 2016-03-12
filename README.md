@@ -20,3 +20,7 @@ Some of libraries above need source code that needs to be downloaded manually fr
 vendor web sites (follow instructions in the libraries).
 
 To join a network, use "sta" command on console prompt.
+
+For another EMW3165 application, see my [wifi thermometer project][1].
+
+[1]: https://github.com/AriZuu/emw-meter
