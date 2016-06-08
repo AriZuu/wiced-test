@@ -38,11 +38,13 @@ export EXTRA_CFLAGS
 
 WICED_PLATFORM  ?= EMW3165
 
+WICED_CHIP           = 43362
+WICED_CHIP_REVISION  = A2
+WICED_BUS            = SDIO
+
 ifeq '$(WICED_PLATFORM)' 'EMW3162'
 
-WICED_CHIP      = 43362A2
 WICED_MCU       = STM32F2xx
-WICED_BUS       = SDIO
 CMSIS_MODULES	= $(CURRENTDIR)/../cmsis-ports/stm32f2xx
 CORTEX = m3
 LD_SCRIPTS 	= emw3162.ld
@@ -50,13 +52,11 @@ LD_SCRIPTS 	= emw3162.ld
 endif
 ifeq '$(WICED_PLATFORM)' 'EMW3165'
 
-WICED_CHIP      = 43362A2
 WICED_MCU       = STM32F4xx
-WICED_BUS       = SDIO
-CMSIS_MODULES	= $(CURRENTDIR)/../cmsis-ports/stm32f4xx
-STM32_CHIP	= STM32F411xE
-CORTEX = m4
-LD_SCRIPTS 	= emw3165.ld
+CMSIS_MODULES   = $(CURRENTDIR)/../cmsis-ports/stm32f4xx
+STM32_CHIP      = STM32F411xE
+CORTEX          = m4
+LD_SCRIPTS      = emw3165.ld
 
 endif
 
