@@ -33,8 +33,6 @@ PORT = cortex-m
 CPU = stm32
 
 BUILD ?= DEBUG
-EXTRA_CFLAGS=-Os
-export EXTRA_CFLAGS
 
 WICED_PLATFORM  ?= EMW3165
 
