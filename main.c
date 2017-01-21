@@ -49,7 +49,7 @@
 
 #include "wwd_management.h"
 #include "wwd_wifi.h"
-#include "wwd_network.h"
+#include "wiced-driver.h"
 #include "wwd_buffer_interface.h"
 
 #include "wiced_test.h"
